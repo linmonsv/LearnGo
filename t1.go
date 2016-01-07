@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"time"
+	"os"
 	"os/exec"
+	"time"
 )
 
 func main() {
@@ -12,9 +13,10 @@ func main() {
 	end := 8
 	for {
 		fmt.Println(str[start:end])
-		time.Sleep(200 * time.Millisecond);
+		time.Sleep(200 * time.Millisecond)
 		str = str[1:] + str[:1]
-		cmd := exec.Command("cls");
+		cmd := exec.Command("cmd", "/c", "cls")
+		cmd.Stdout = os.Stdout
 		cmd.Run()
 	}
 }
