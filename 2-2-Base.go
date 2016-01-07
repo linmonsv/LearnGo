@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
 )
 
 func main() {
@@ -208,4 +209,180 @@ func main() {
 	fmt.Println("------ ---make、new操作 ------")
 	//make用于内建类型（map、slice 和channel）的内存分配。
 	//new用于各种类型的内存分配。
+
+	fmt.Println("------ 函数 ------")
+
+	x2 := 3
+	y2 := 4
+	max_xy := max(x2, y2)
+	fmt.Printf("max_xy : %d\n", max_xy)
+
+	fmt.Println("------ ---多个返回值 ------")
+
+	xaddy, xplusy := SumAndProduce(x2, y2)
+	fmt.Printf("xaddy, xplusy : %d %d\n", xaddy, xplusy)
+
+	xaddy2, xplusy2 := SumAndProduce2(x2, y2)
+	fmt.Printf("xaddy2, xplusy2 : %d %d\n", xaddy2, xplusy2)
+
+	fmt.Println("------ ---变参 ------")
+	myFunc(1, 2, 3, 4, 5)
+
+	fmt.Println("------ ---传值与传指针 ------")
+
+	a5 := 3
+	a6 := add1(a5)
+	fmt.Printf("a5, a6 : %d %d\n", a5, a6)
+
+	a7 := 3
+	a8 := add2(&a7)
+	fmt.Printf("a7, a8 : %d %d\n", a7, a8)
+
+	fmt.Println("------ ---defer ------")
+	//可以在函数中添加多个defer语句。当函数执行到最后时，
+	//这些defer语句会按照逆序执行，最后该函数返回
+	defer fmt.Println("main end")
+	for i := 0; i < 5; i++ {
+		defer fmt.Printf("%d ", i) //4 3 2 1 0
+	}
+	fmt.Println("")
+
+	fmt.Println("------ ---数作为值、类型 ------")
+	//在Go中函数也是一种变量，我们可以通过type来定义它，
+	//它的类型就是所有拥有相同的参数，相同的返回值的一种类型
+	slice2 := []int{1, 2, 3, 4, 5, 7}
+	fmt.Println("slice2 =", slice2)
+	odd := filter(slice2, isOdd)
+	fmt.Println("odd =", odd)
+	even := filter(slice2, isEven)
+	fmt.Println("even =", even)
+
+	fmt.Println("------ ---Panic和Recover ------")
+	//Go没有像Java那样的异常机制，它不能抛出异常，而是使用了panic和recover机制
+	var user = os.Getenv("USER")
+	if user == "" {
+		panic("no value for $USER")
+	}
+
+	fmt.Println("------ ---main函数和init函数 ------")
+	//Go里面有两个保留的函数：
+	//init函数（能够应用于所有的package）和main函数（只能应用于package main）。
+	//这两个函数在定义时不能有任何的参数和返回值。
+	//Go程序会自动调用init()和main()，所以你不需要在任何地方调用这两个函数
+	//每个package中的init函数都是可选的，
+	//但package main就必须包含一个main函数。
+
+	//main import 包 import 关联包
+	//const
+	//var
+	//init()
+	//main()
+	//Exit
+
+	fmt.Println("------ ---import ------")
+	//fmt是Go语言的标准库，其实是去goroot下去加载该模块
+	//Go的import还支持如下两种方式来加载自己写的模块
+	//1. 相对路径import “./model” //当前文件同一目录的model目录，但是不建议这种方式来import
+	//2. 绝对路径import “shorturl/model” //加载gopath/src/shorturl/model模块
+
+	//一些特殊的import
+	/*
+		1. 点操作,省略前缀的包名
+		import(
+			. "fmt"
+		)
+		fmt.Println("hello world")可以省略的写成Println("hello world")
+
+		2. 别名操作
+		别名操作顾名思义我们可以把包命名成另一个我们用起来容易记忆的名字
+		import(
+			f "fmt"
+		)
+		别名操作的话调用包函数时前缀变成了我们的前缀，即f.Println("hello world")
+
+		3. _操作
+		这个操作经常是让很多人费解的一个操作符，请看下面这个import
+		import (
+			"database/sql"
+			_ "github.com/ziutek/mymysql/godrv"
+		) _
+		操作其实是引入该包，而不直接使用包里面的函数，而是调用了该包里面的init函数。
+	*/
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func SumAndProduce(a, b int) (int, int) {
+	return a + b, a * b
+}
+
+//最好命名返回值，因为不命名返回值，虽然使得代码更加简洁了
+func SumAndProduce2(a, b int) (add int, multiplied int) {
+	add = a + b
+	multiplied = a * b
+	return
+}
+
+//arg ...int告诉Go这个函数接受不定数量的参数。
+//注意，这些参数的类型全部是int。在函数体中，变量arg是一个int的slice
+func myFunc(arg ...int) {
+	for _, n := range arg {
+		fmt.Printf("And the number is: %d\n", n)
+	}
+}
+
+func add1(a int) int {
+	a = a + 1
+	return a
+}
+
+//Go语言中string，slice，map这三种类型的实现机制类似指针，
+//所以可以直接传递，而不用取地址后传递指针。
+//（注：若函数需改变slice的长度，则仍需要取地址传递指针）
+func add2(a *int) int {
+	*a = *a + 1
+	return *a
+}
+
+type testInt func(int) bool
+
+func isOdd(integer int) bool {
+	if integer%2 == 0 {
+		return false
+	}
+	return true
+}
+
+func isEven(integer int) bool {
+	if integer%2 == 0 {
+		return true
+	}
+	return false
+}
+
+func filter(slice []int, f testInt) []int {
+	var result []int
+	for _, value := range slice {
+		if f(value) {
+			result = append(result, value)
+		}
+	}
+	return result
+}
+
+//这个函数检查作为其参数的函数在执行时是否会产生panic
+//没明白,,,这例子也,,,
+func throwsPanic(f func()) (b bool) {
+	defer func() {
+		if x := recover(); x != nil {
+			b = true
+		}
+	}()
+	f() //执行函数f，如果f中出现了panic，那么就可以恢复回来
+	return
 }
