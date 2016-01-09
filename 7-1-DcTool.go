@@ -1,15 +1,15 @@
 // Copyright (C) 2013 Andras Belicza. All rights reserved.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -18,8 +18,8 @@
 package main
 
 import (
-	"github.com/icza/gowut/gwu"
 	"fmt"
+	"github.com/icza/gowut/gwu"
 	"os"
 	"strconv"
 	"time"
@@ -37,9 +37,12 @@ func plural(i int) string {
 func buildHomeDemo(event gwu.Event) gwu.Comp {
 	p := gwu.NewPanel()
 
-	p.Add(gwu.NewLabel("This app is written in and showcases Gowut version " + gwu.GOWUT_VERSION + "."))
+	//p.Add(gwu.NewLabel("This app is written in and showcases Gowut version " + gwu.GOWUT_VERSION + "."))
+	p.Add(gwu.NewLabel("The old version of DC_PBOC_CLIENT.exe is written by VC6/MFC."))
 	p.AddVSpace(20)
-	p.Add(gwu.NewLabel("Select components on the left side to see them in action."))
+	p.Add(gwu.NewLabel("It's usually crashed in win8.1/10 64bit, so it's time to rewrite now!"))
+	p.AddVSpace(20)
+	p.Add(gwu.NewLabel("I think Web-Ui is a good choice, and do it now!"))
 
 	return p
 }
@@ -658,7 +661,7 @@ type demo struct {
 type pdemo *demo
 
 func buildShowcaseWin(sess gwu.Session) {
-	win := gwu.NewWindow("show", "Showcase of Features - Gowut")
+	win := gwu.NewWindow("web_view", "DC_PBOC_CLIENT Go Go Go")
 	win.Style().SetFullSize()
 	win.AddEHandlerFunc(func(e gwu.Event) {
 		switch e.Type() {
@@ -674,25 +677,27 @@ func buildShowcaseWin(sess gwu.Session) {
 
 	header := gwu.NewHorizontalPanel()
 	header.Style().SetFullWidth().SetBorderBottom2(2, gwu.BRD_STYLE_SOLID, "#777777")
-	l := gwu.NewLabel("Gowut - Showcase of Features")
+	l := gwu.NewLabel("Welcome to use this version !")
 	l.Style().SetFontWeight(gwu.FONT_WEIGHT_BOLD).SetFontSize("120%")
 	header.Add(l)
-	header.AddHConsumer()
-	header.Add(gwu.NewLabel("Theme:"))
-	themes := gwu.NewListBox([]string{"default", "debug"})
-	themes.AddEHandlerFunc(func(e gwu.Event) {
-		win.SetTheme(themes.SelectedValue())
-		e.ReloadWin("show")
-	}, gwu.ETYPE_CHANGE)
-	header.Add(themes)
-	header.AddHSpace(10)
-	reset := gwu.NewLink("Reset", "#")
-	reset.SetTarget("")
-	reset.AddEHandlerFunc(func(e gwu.Event) {
-		e.RemoveSess()
-		e.ReloadWin("show")
-	}, gwu.ETYPE_CLICK)
-	header.Add(reset)
+	/*
+		header.AddHConsumer()
+		header.Add(gwu.NewLabel("Theme:"))
+		themes := gwu.NewListBox([]string{"default", "debug"})
+		themes.AddEHandlerFunc(func(e gwu.Event) {
+			win.SetTheme(themes.SelectedValue())
+			e.ReloadWin("show")
+		}, gwu.ETYPE_CHANGE)
+		header.Add(themes)
+		header.AddHSpace(10)
+		reset := gwu.NewLink("Reset", "#")
+		reset.SetTarget("")
+		reset.AddEHandlerFunc(func(e gwu.Event) {
+			e.RemoveSess()
+			e.ReloadWin("show")
+		}, gwu.ETYPE_CLICK)
+		header.Add(reset)
+	*/
 	setNoWrap(header)
 	win.Add(header)
 
@@ -752,40 +757,60 @@ func buildShowcaseWin(sess gwu.Session) {
 	links.AddVSpace(5)
 	homeDemo := createDemo("Home", buildHomeDemo)
 	selectDemo(homeDemo, nil)
+
+	/*
+		links.AddVSpace(5)
+		l = gwu.NewLabel("Module Demo")
+		l.Style().SetFontWeight(gwu.FONT_WEIGHT_BOLD).SetFontSize("110%")
+		links.Add(l)
+	*/
+
 	links.AddVSpace(5)
-	l = gwu.NewLabel("Component Palette")
-	l.Style().SetFontWeight(gwu.FONT_WEIGHT_BOLD).SetFontSize("110%")
-	links.Add(l)
-	links.AddVSpace(5)
-	l = gwu.NewLabel("Containers")
+	l = gwu.NewLabel("IC Card")
 	l.Style().SetFontWeight(gwu.FONT_WEIGHT_BOLD)
 	links.Add(l)
-	createDemo("Expander", buildExpanderDemo)
-	createDemo("Link (as Container)", buildLinkContainerDemo)
-	createDemo("Panel", buildPanelDemo)
-	createDemo("Table", buildTableDemo)
-	createDemo("TabPanel", buildTabPanelDemo)
-	createDemo("Window", buildWindowDemo)
+	//createDemo("Expander", buildExpanderDemo)
+	//createDemo("Link (as Container)", buildLinkContainerDemo)
+	//createDemo("Panel", buildPanelDemo)
+	//createDemo("Table", buildTableDemo)
+	createDemo("PBOC3.0", buildTabPanelDemo)
+	//createDemo("Window", buildWindowDemo)
+
 	links.AddVSpace(5)
-	l = gwu.NewLabel("Input components")
+	l = gwu.NewLabel("8583")
 	l.Style().SetFontWeight(gwu.FONT_WEIGHT_BOLD).SetDisplay(gwu.DISPLAY_BLOCK)
 	links.Add(l)
-	createDemo("CheckBox", buildCheckBoxDemo)
-	createDemo("ListBox", buildListBoxDemo)
-	createDemo("TextBox", buildTextBoxDemo)
-	createDemo("PasswBox", buildPasswBoxDemo)
-	createDemo("RadioButton", buildRadioButtonDemo)
-	createDemo("SwitchButton", buildSwitchButtonDemo)
+	//createDemo("CheckBox", buildCheckBoxDemo)
+	//createDemo("ListBox", buildListBoxDemo)
+	createDemo("Split", buildTextBoxDemo)
+	//createDemo("PasswBox", buildPasswBoxDemo)
+	//createDemo("RadioButton", buildRadioButtonDemo)
+	//createDemo("SwitchButton", buildSwitchButtonDemo)
+
 	links.AddVSpace(5)
-	l = gwu.NewLabel("Other components")
+	l = gwu.NewLabel("TLV")
 	l.Style().SetFontWeight(gwu.FONT_WEIGHT_BOLD)
 	links.Add(l)
-	createDemo("Button", buildButtonDemo)
-	createDemo("Html", buildHtmlDemo)
-	createDemo("Image", buildImageDemo)
-	createDemo("Label", buildLabelDemo)
-	createDemo("Link", buildLinkDemo)
-	createDemo("Timer", buildTimerDemo)
+	createDemo("Analysis", buildListBoxDemo)
+	//createDemo("Button", buildButtonDemo)
+	//createDemo("Html", buildHtmlDemo)
+	//createDemo("Image", buildImageDemo)
+	//createDemo("Label", buildLabelDemo)
+	//createDemo("Link", buildLinkDemo)
+	//createDemo("Timer", buildTimerDemo)
+
+	links.AddVSpace(5)
+	l = gwu.NewLabel("STRING")
+	l.Style().SetFontWeight(gwu.FONT_WEIGHT_BOLD)
+	links.Add(l)
+	createDemo("Transfer", buildTextBoxDemo)
+
+	links.AddVSpace(5)
+	l = gwu.NewLabel("DES,MAC,RSA")
+	l.Style().SetFontWeight(gwu.FONT_WEIGHT_BOLD)
+	links.Add(l)
+	createDemo("Calculate", buildTextBoxDemo)
+
 	links.AddVConsumer()
 	setNoWrap(links)
 	content.Add(links)
@@ -799,11 +824,11 @@ func buildShowcaseWin(sess gwu.Session) {
 	footer.Style().SetFullWidth().SetBorderTop2(2, gwu.BRD_STYLE_SOLID, "#777777")
 	footer.Add(hiddenPan)
 	footer.AddHConsumer()
-	l = gwu.NewLabel("Copyright © 2013-2015 András Belicza. All rights reserved.")
+	l = gwu.NewLabel("Copyright © 2016-2016 Qfx. All rights reserved.")
 	l.Style().SetFontStyle(gwu.FONT_STYLE_ITALIC).SetFontSize("95%")
 	footer.Add(l)
 	footer.AddHSpace(10)
-	link := gwu.NewLink("Visit Gowut Home page", "https://sites.google.com/site/gowebuitoolkit/")
+	link := gwu.NewLink("Visit Qinuu Home page", "http://www.qinuu.com/")
 	link.Style().SetFontStyle(gwu.FONT_STYLE_ITALIC).SetFontSize("95%")
 	footer.Add(link)
 	setNoWrap(footer)
@@ -846,14 +871,14 @@ func main() {
 	}()
 
 	// Create GUI server
-	server := gwu.NewServer("showcase", "")
-	server.SetText("Gowut - Showcase of Features")
+	server := gwu.NewServer("dc_pboc_client", "")
+	server.SetText("")
 
-	server.AddSessCreatorName("show", "Showcase of Features - Gowut")
+	server.AddSessCreatorName("web_view", "")
 	server.AddSHandler(SessHandler{})
 
 	// Start GUI server
-	if err := server.Start("show"); err != nil {
+	if err := server.Start("web_view"); err != nil {
 		fmt.Println("Error: Cound not start GUI server:", err)
 		return
 	}
