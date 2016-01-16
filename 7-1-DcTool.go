@@ -360,23 +360,54 @@ func buildListBoxDemo(event gwu.Event) gwu.Comp {
 func buildTextBoxDemo(event gwu.Event) gwu.Comp {
 	p := gwu.NewPanel()
 
-	p.Add(gwu.NewLabel("Enter your name (max 15 characters):"))
+	p.Add(gwu.NewLabel("Input Key(max 32 characters):"))
 	row := gwu.NewHorizontalPanel()
-	tb := gwu.NewTextBox("")
-	tb.SetMaxLength(15)
-	tb.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+	txBox_des_key := gwu.NewTextBox("")
+	txBox_des_key.SetCols(32)
+	txBox_des_key.SetMaxLength(32)
+	txBox_des_key.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
 	length := gwu.NewLabel("")
 	length.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
-	tb.AddEHandlerFunc(func(e gwu.Event) {
-		rem := 15 - len(tb.Text())
+	txBox_des_key.AddEHandlerFunc(func(e gwu.Event) {
+		rem := 32 - len(txBox_des_key.Text())
 		length.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
 		e.MarkDirty(length)
 	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
-	row.Add(tb)
+	row.Add(txBox_des_key)
 	row.Add(length)
 	p.Add(row)
 
 	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("Input Data(max 32 characters):"))
+	row = gwu.NewHorizontalPanel()
+	txBox_des_data := gwu.NewTextBox("")
+	txBox_des_data.SetCols(32)
+	txBox_des_data.SetMaxLength(32)
+	txBox_des_data.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+	length_2 := gwu.NewLabel("")
+	length_2.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
+	txBox_des_data.AddEHandlerFunc(func(e gwu.Event) {
+		rem := 32 - len(txBox_des_data.Text())
+		length_2.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
+		e.MarkDirty(length_2)
+	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
+	row.Add(txBox_des_data)
+	row.Add(length_2)
+	p.Add(row)
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("Encrypt Result:"))
+	txBox_des_result_encrypt := gwu.NewTextBox("")
+	txBox_des_result_encrypt.SetCols(32)
+	p.Add(txBox_des_result_encrypt)
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("Decrypt Result:"))
+	txBox_des_result_decrypt := gwu.NewTextBox("")
+	txBox_des_result_decrypt.SetCols(32)
+	p.Add(txBox_des_result_decrypt)
+
+	/*p.AddVSpace(10
 	p.Add(gwu.NewLabel("Short biography:"))
 	bio := gwu.NewTextBox("")
 	bio.SetRows(5)
@@ -391,7 +422,7 @@ func buildTextBoxDemo(event gwu.Event) gwu.Comp {
 	p.AddVSpace(10)
 	dtb := gwu.NewTextBox("...and a disabled one.")
 	dtb.SetEnabled(false)
-	p.Add(dtb)
+	p.Add(dtb)*/
 
 	return p
 }
