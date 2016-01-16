@@ -32,69 +32,38 @@ func buildHomeDemo(event gwu.Event) gwu.Comp {
 func build8583AnalysisView(event gwu.Event) gwu.Comp {
 	p := gwu.NewPanel()
 
-	p.Add(gwu.NewLabel("Input Key(max 32 characters):"))
+	p.Add(gwu.NewLabel("Input 8583 Data(max 2048 characters):"))
 	row := gwu.NewHorizontalPanel()
-	txBox_des_key := gwu.NewTextBox("")
-	txBox_des_key.SetCols(32)
-	txBox_des_key.SetMaxLength(32)
-	txBox_des_key.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+	txBox_ascii := gwu.NewTextBox("")
+	txBox_ascii.SetRows(8)
+	txBox_ascii.SetCols(128)
+	txBox_ascii.SetMaxLength(2048)
+	txBox_ascii.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+
+	txBox_result := gwu.NewTextBox("")
+	txBox_result.SetRows(32)
+	txBox_result.SetCols(128)
+	txBox_result.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+
 	length := gwu.NewLabel("")
 	length.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
-	txBox_des_key.AddEHandlerFunc(func(e gwu.Event) {
-		rem := 32 - len(txBox_des_key.Text())
+	txBox_ascii.AddEHandlerFunc(func(e gwu.Event) {
+		txBox_result.SetText(txBox_ascii.Text())
+		e.MarkDirty(txBox_result)
+		rem := 2048 - len(txBox_ascii.Text())
 		length.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
 		e.MarkDirty(length)
 	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
-	row.Add(txBox_des_key)
+	row.Add(txBox_ascii)
 	row.Add(length)
 	p.Add(row)
 
 	p.AddVSpace(10)
-	p.Add(gwu.NewLabel("Input Data(max 32 characters):"))
+	p.Add(gwu.NewLabel("The Result:"))
 	row = gwu.NewHorizontalPanel()
-	txBox_des_data := gwu.NewTextBox("")
-	txBox_des_data.SetCols(32)
-	txBox_des_data.SetMaxLength(32)
-	txBox_des_data.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
-	length_2 := gwu.NewLabel("")
-	length_2.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
-	txBox_des_data.AddEHandlerFunc(func(e gwu.Event) {
-		rem := 32 - len(txBox_des_data.Text())
-		length_2.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
-		e.MarkDirty(length_2)
-	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
-	row.Add(txBox_des_data)
-	row.Add(length_2)
+
+	row.Add(txBox_result)
 	p.Add(row)
-
-	p.AddVSpace(10)
-	p.Add(gwu.NewLabel("Encrypt Result:"))
-	txBox_des_result_encrypt := gwu.NewTextBox("")
-	txBox_des_result_encrypt.SetCols(32)
-	p.Add(txBox_des_result_encrypt)
-
-	p.AddVSpace(10)
-	p.Add(gwu.NewLabel("Decrypt Result:"))
-	txBox_des_result_decrypt := gwu.NewTextBox("")
-	txBox_des_result_decrypt.SetCols(32)
-	p.Add(txBox_des_result_decrypt)
-
-	/*p.AddVSpace(10
-	p.Add(gwu.NewLabel("Short biography:"))
-	bio := gwu.NewTextBox("")
-	bio.SetRows(5)
-	bio.SetCols(40)
-	p.Add(bio)
-
-	p.AddVSpace(10)
-	rtb := gwu.NewTextBox("This is just a read-only text box...")
-	rtb.SetReadOnly(true)
-	p.Add(rtb)
-
-	p.AddVSpace(10)
-	dtb := gwu.NewTextBox("...and a disabled one.")
-	dtb.SetEnabled(false)
-	p.Add(dtb)*/
 
 	return p
 }
