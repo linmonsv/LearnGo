@@ -29,6 +29,81 @@ func buildHomeDemo(event gwu.Event) gwu.Comp {
 	return p
 }
 
+func buildPboc3View(event gwu.Event) gwu.Comp {
+	p := gwu.NewPanel()
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("This demo need the related hardware support!"))
+
+	p.Add(gwu.NewLabel("Select your device:"))
+
+	group := gwu.NewRadioGroup("device")
+	rbs := []gwu.RadioButton{
+		gwu.NewRadioButton("T10", group),
+		gwu.NewRadioButton("D8", group),
+		gwu.NewRadioButton("D6", group),
+		gwu.NewRadioButton("Z9", group)}
+
+	for _, rb := range rbs {
+		p.Add(rb)
+	}
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("Select Usb/Serial:"))
+
+	group = gwu.NewRadioGroup("commtype")
+	rbs = []gwu.RadioButton{
+		gwu.NewRadioButton("USB", group),
+		gwu.NewRadioButton("COM1", group),
+		gwu.NewRadioButton("COM2", group),
+		gwu.NewRadioButton("COM3", group),
+		gwu.NewRadioButton("COM4", group)}
+
+	for _, rb := range rbs {
+		p.Add(rb)
+	}
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("Select Usb/Serial:"))
+
+	group = gwu.NewRadioGroup("transtype")
+	rbs = []gwu.RadioButton{
+		gwu.NewRadioButton("ReadCardInfo", group),
+		gwu.NewRadioButton("ARQC/ARPC", group),
+		gwu.NewRadioButton("ReadCardLog", group)}
+
+	for _, rb := range rbs {
+		p.Add(rb)
+	}
+
+	txBox_result := gwu.NewTextBox("")
+
+	p.AddVSpace(10)
+	b := gwu.NewButton("Start")
+	b.AddEHandlerFunc(func(e gwu.Event) {
+		switch e.Type() {
+		case gwu.ETYPE_MOUSE_OVER:
+			txBox_result.SetText("Mouse is over...")
+		case gwu.ETYPE_MOUSE_OUT:
+			txBox_result.SetText("Mouse is out.")
+		case gwu.ETYPE_CLICK:
+			x, y := e.Mouse()
+			txBox_result.SetText(fmt.Sprintf("Clicked at x=%d, y=%d", x, y))
+		}
+		e.MarkDirty(txBox_result)
+	}, gwu.ETYPE_CLICK, gwu.ETYPE_MOUSE_OVER, gwu.ETYPE_MOUSE_OUT)
+	p.Add(b)
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("Result:"))
+
+	txBox_result.SetRows(8)
+	txBox_result.SetCols(128)
+	p.Add(txBox_result)
+
+	return p
+}
+
 func build8583AnalysisView(event gwu.Event) gwu.Comp {
 	p := gwu.NewPanel()
 
@@ -527,7 +602,7 @@ func buildShowcaseWin(sess gwu.Session) {
 	l = gwu.NewLabel("IC Card")
 	l.Style().SetFontWeight(gwu.FONT_WEIGHT_BOLD)
 	links.Add(l)
-	createDemo("PBOC3", buildHomeDemo)
+	createDemo("PBOC3", buildPboc3View)
 
 	links.AddVSpace(5)
 	l = gwu.NewLabel("8583")
