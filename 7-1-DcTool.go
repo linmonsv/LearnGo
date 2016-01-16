@@ -507,9 +507,15 @@ func buildDesView(event gwu.Event) gwu.Comp {
 	txBox_des_key.SetMaxLength(32)
 	txBox_des_key.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
 	length := gwu.NewLabel("")
+	length.Style().SetColor(gwu.CLR_WHITE)
 	length.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
 	txBox_des_key.AddEHandlerFunc(func(e gwu.Event) {
 		rem := 32 - len(txBox_des_key.Text())
+		if rem == 0 || rem == 16 {
+			length.Style().SetBackground(gwu.CLR_GREEN)
+		} else {
+			length.Style().SetBackground(gwu.CLR_RED)
+		}
 		length.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
 		e.MarkDirty(length)
 	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
@@ -525,9 +531,15 @@ func buildDesView(event gwu.Event) gwu.Comp {
 	txBox_des_data.SetMaxLength(32)
 	txBox_des_data.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
 	length_2 := gwu.NewLabel("")
+	length_2.Style().SetColor(gwu.CLR_WHITE)
 	length_2.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
 	txBox_des_data.AddEHandlerFunc(func(e gwu.Event) {
 		rem := 32 - len(txBox_des_data.Text())
+		if rem%16 == 0 {
+			length_2.Style().SetBackground(gwu.CLR_GREEN)
+		} else {
+			length_2.Style().SetBackground(gwu.CLR_RED)
+		}
 		length_2.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
 		e.MarkDirty(length_2)
 	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
