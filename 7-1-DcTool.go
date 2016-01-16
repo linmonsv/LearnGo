@@ -429,6 +429,64 @@ func buildTextBoxDemo(event gwu.Event) gwu.Comp {
 	return p
 }
 
+func buildTlvAnalysisView(event gwu.Event) gwu.Comp {
+	p := gwu.NewPanel()
+
+	p.Add(gwu.NewLabel("Input Tlv Data(max 1024 characters):"))
+	row := gwu.NewHorizontalPanel()
+	txBox_ascii := gwu.NewTextBox("")
+	txBox_ascii.SetRows(8)
+	txBox_ascii.SetCols(128)
+	txBox_ascii.SetMaxLength(1024)
+	txBox_ascii.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+
+	txBox_result := gwu.NewTextBox("")
+	txBox_result.SetRows(16)
+	txBox_result.SetCols(128)
+	txBox_result.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+
+	length := gwu.NewLabel("")
+	length.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
+	txBox_ascii.AddEHandlerFunc(func(e gwu.Event) {
+		txBox_result.SetText(txBox_ascii.Text())
+		e.MarkDirty(txBox_result)
+		rem := 1024 - len(txBox_ascii.Text())
+		length.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
+		e.MarkDirty(length)
+	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
+	row.Add(txBox_ascii)
+	row.Add(length)
+	p.Add(row)
+
+	p.AddVSpace(10)
+
+	lb2 := gwu.NewListBox([]string{"1", "2", "4", "8", "16", "32", "64", "128"})
+	lb2.SetMulti(true)
+	lb2.SetRows(10)
+	lb2.AddEHandlerFunc(func(e gwu.Event) {
+		sum := 0
+		for _, idx := range lb2.SelectedIndices() {
+			sum += 1 << uint(idx)
+		}
+		if sum == 89 {
+			txBox_result.SetText("Hooray! You did it!")
+		} else {
+			txBox_result.SetText(fmt.Sprintf("Now quite there... (sum = %d)", sum))
+		}
+		e.MarkDirty(txBox_result)
+	}, gwu.ETYPE_CHANGE)
+	p.Add(lb2)
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("The Result:"))
+	row = gwu.NewHorizontalPanel()
+
+	row.Add(txBox_result)
+	p.Add(row)
+
+	return p
+}
+
 func buildConvertView(event gwu.Event) gwu.Comp {
 	p := gwu.NewPanel()
 
@@ -1134,7 +1192,7 @@ func buildShowcaseWin(sess gwu.Session) {
 	l = gwu.NewLabel("TLV")
 	l.Style().SetFontWeight(gwu.FONT_WEIGHT_BOLD)
 	links.Add(l)
-	createDemo("Analysis", buildListBoxDemo)
+	createDemo("Analysis", buildTlvAnalysisView)
 	//createDemo("Button", buildButtonDemo)
 	//createDemo("Html", buildHtmlDemo)
 	//createDemo("Image", buildImageDemo)
@@ -1216,7 +1274,7 @@ func main() {
 	}()
 
 	// Create GUI server
-	server := gwu.NewServer("dc_pboc_client", "")
+	server := gwu.NewServer("dc_pboc_client", "127.0.0.1:5761")
 	server.SetText("")
 
 	server.AddSessCreatorName("web_view", "")
