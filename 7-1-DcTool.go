@@ -429,6 +429,74 @@ func buildTextBoxDemo(event gwu.Event) gwu.Comp {
 	return p
 }
 
+func buildConvertView(event gwu.Event) gwu.Comp {
+	p := gwu.NewPanel()
+
+	p.Add(gwu.NewLabel("Input Ascii(max 1024 characters):"))
+	row := gwu.NewHorizontalPanel()
+	txBox_ascii := gwu.NewTextBox("")
+	txBox_ascii.SetRows(8)
+	txBox_ascii.SetCols(128)
+	txBox_ascii.SetMaxLength(1024)
+	txBox_ascii.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+	length := gwu.NewLabel("")
+	length.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
+	txBox_ascii.AddEHandlerFunc(func(e gwu.Event) {
+		rem := 1024 - len(txBox_ascii.Text())
+		length.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
+		e.MarkDirty(length)
+	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
+	row.Add(txBox_ascii)
+	row.Add(length)
+	p.Add(row)
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("Input Hex(max 1024 characters):"))
+	row = gwu.NewHorizontalPanel()
+	txBox_hex := gwu.NewTextBox("")
+	txBox_hex.SetRows(8)
+	txBox_hex.SetCols(128)
+	txBox_hex.SetMaxLength(1024)
+	txBox_hex.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+	length_3 := gwu.NewLabel("")
+	length_3.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
+	txBox_hex.AddEHandlerFunc(func(e gwu.Event) {
+		rem := 1024 - len(txBox_hex.Text())
+		length_3.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
+		e.MarkDirty(length_3)
+	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
+	row.Add(txBox_hex)
+	row.Add(length_3)
+	p.Add(row)
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("Input XorSum Data(max 1024 characters):"))
+	row = gwu.NewHorizontalPanel()
+	txBox_xor_data := gwu.NewTextBox("")
+	txBox_xor_data.SetRows(8)
+	txBox_xor_data.SetCols(128)
+	txBox_xor_data.SetMaxLength(1024)
+	txBox_xor_data.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+	length_4 := gwu.NewLabel("")
+	length_4.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
+	txBox_xor_data.AddEHandlerFunc(func(e gwu.Event) {
+		rem := 1024 - len(txBox_xor_data.Text())
+		length_4.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
+		e.MarkDirty(length_4)
+	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
+	row.Add(txBox_xor_data)
+	row.Add(length_4)
+	p.Add(row)
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("XorSum Result:"))
+	txBox_xor_result := gwu.NewTextBox("")
+	txBox_xor_result.SetCols(128)
+	p.Add(txBox_xor_result)
+
+	return p
+}
+
 func buildDesView(event gwu.Event) gwu.Comp {
 	p := gwu.NewPanel()
 
@@ -1066,7 +1134,7 @@ func buildShowcaseWin(sess gwu.Session) {
 	l = gwu.NewLabel("STRING")
 	l.Style().SetFontWeight(gwu.FONT_WEIGHT_BOLD)
 	links.Add(l)
-	createDemo("Convert", buildTextBoxDemo)
+	createDemo("Convert", buildConvertView)
 
 	links.AddVSpace(5)
 	l = gwu.NewLabel("CALCULATE")
