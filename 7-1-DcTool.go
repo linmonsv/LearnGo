@@ -561,6 +561,104 @@ func buildMacView(event gwu.Event) gwu.Comp {
 	return p
 }
 
+func buildRsaView(event gwu.Event) gwu.Comp {
+	p := gwu.NewPanel()
+
+	p.Add(gwu.NewLabel("Input Public Key(max 1024 characters):"))
+	row := gwu.NewHorizontalPanel()
+	txBox_public_key := gwu.NewTextBox("")
+	txBox_public_key.SetRows(8)
+	txBox_public_key.SetCols(128)
+	txBox_public_key.SetMaxLength(1024)
+	txBox_public_key.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+	txBox_public_key.SetText("B417E5AB8961649679F037EE0799BE6BF5478203DE483832A4F0C906DC2064A451DF3913AEFE700D8D6F2729EB24600E4DF59CF54863C7C39016883CB6DD800A239FDADA5E227E130F633B7171FBF3CA8A27722CFD0DDC1A5B7FA02E161FB4C16FC1306F3DE9CE2F1D5E376E484BD77CAB8377F379805219EA9855672DB7C6B12D5E273D8BD6A2C3B3FD67E6BCD4A9795510E2E59D83ECA46AB1DEA0C31ED8AD8BB052F84DBD5FE5BA2A58E53C0C65ED82797CF8EA04F6E382EB64EBD096E87B34C59BF94CA1E8329F10DB3D05E124B6810F92F58AF900079E66AF566C8E985AD729FDA28637FADC80B11C3AD550217214A612B8E7B1454D")
+	length := gwu.NewLabel("")
+	length.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
+	txBox_public_key.AddEHandlerFunc(func(e gwu.Event) {
+		rem := 1024 - len(txBox_public_key.Text())
+		length.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
+		e.MarkDirty(length)
+	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
+	row.Add(txBox_public_key)
+	row.Add(length)
+	p.Add(row)
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("Input Expoent(max 6 characters):"))
+	row = gwu.NewHorizontalPanel()
+	txBox_expoent_data := gwu.NewTextBox("")
+	txBox_expoent_data.SetCols(6)
+	txBox_expoent_data.SetMaxLength(6)
+	txBox_expoent_data.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+	txBox_expoent_data.SetText("010001")
+	length_2 := gwu.NewLabel("")
+	length_2.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
+	txBox_expoent_data.AddEHandlerFunc(func(e gwu.Event) {
+		rem := 6 - len(txBox_expoent_data.Text())
+		length_2.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
+		e.MarkDirty(length_2)
+	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
+	row.Add(txBox_expoent_data)
+	row.Add(length_2)
+	p.Add(row)
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("Input Private Key(max 1024 characters):"))
+	row = gwu.NewHorizontalPanel()
+	txBox_private_key := gwu.NewTextBox("")
+	txBox_private_key.SetRows(8)
+	txBox_private_key.SetCols(128)
+	txBox_private_key.SetMaxLength(1024)
+	txBox_private_key.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+	txBox_private_key.SetText("29EA29ED0B935C4ADD64784FF0FAEA63CBF9719C1EDEE61D7B60031992A0036C6F15A9FE17CB661EF15CFE5B763BC8136C378EE95388CD948973850FC46BB702251A6E60466A76B74EEC848839C42F1063A91C9CB5E4C4E6698741AB984096DC327B5F1F74E476B5667B682145B84915DE014228AB8D9F0E2318833F951C4E74B0691D9062BC668EA333141049FDCC6EBC1049DD001E02C5CE5C45CA65DEE1468BFC203E6AD50B756E9867465470D039BD4A4253592E0BEC45A51B7F48861117CA369A10A00007D4DA8E3A69FCFFD0EE8E350AC97D3EB5D5B56BDAD2919AA05927FB6AEA9326279D74A8B144A742CE3727B3545D56DABAA1")
+	length_3 := gwu.NewLabel("")
+	length_3.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
+	txBox_private_key.AddEHandlerFunc(func(e gwu.Event) {
+		rem := 1024 - len(txBox_private_key.Text())
+		length_3.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
+		e.MarkDirty(length_3)
+	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
+	row.Add(txBox_private_key)
+	row.Add(length_3)
+	p.Add(row)
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("Input Data(max 1024 characters):"))
+	row = gwu.NewHorizontalPanel()
+	txBox_rsa_data := gwu.NewTextBox("")
+	txBox_rsa_data.SetRows(8)
+	txBox_rsa_data.SetCols(128)
+	txBox_rsa_data.SetMaxLength(1024)
+	txBox_rsa_data.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+	txBox_rsa_data.SetText("35E262DD2FC4CF5BF284D3EE5B53DFF287A80C814DCB48FAA565AEB56EF7D246929D3AF8CA60DCB14A24F6E94C44DFE0732B4FEF4CDA86F5D7096D3080BBA7F28612373046AAC0A48F1F7E81A2A4B403D8CAE4C8F028D9958BE249D4C72E846C53844D23D95389912D14D420292F9ACEF35D121ED0BAE34CEEFB9378EB2A9A5E96F848257BCD2456972142A54E27B8175C74BD3ED885652120CFBBCF1B7F2B33DDE928FA9F3E2F6FB9ED58F84CC026CA2D2CE030641D86596D0741521C04D9F5F3A8E49FB751F9EF3CF1641A6DCA7AECC6C1469E2E9B90424DFF28F2740F36319999D3A3F4306E133F4C5B8065DB70BDCB96205F7D13DE00")
+	length_4 := gwu.NewLabel("")
+	length_4.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
+	txBox_rsa_data.AddEHandlerFunc(func(e gwu.Event) {
+		rem := 1024 - len(txBox_rsa_data.Text())
+		length_4.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
+		e.MarkDirty(length_4)
+	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
+	row.Add(txBox_rsa_data)
+	row.Add(length_4)
+	p.Add(row)
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("Encrypt Result:"))
+	txBox_rsa_result_encrypt := gwu.NewTextBox("")
+	txBox_rsa_result_encrypt.SetRows(8)
+	txBox_rsa_result_encrypt.SetCols(128)
+	p.Add(txBox_rsa_result_encrypt)
+
+	p.AddVSpace(10)
+	p.Add(gwu.NewLabel("Decrypt Result:"))
+	txBox_rsa_result_decrypt := gwu.NewTextBox("")
+	txBox_rsa_result_decrypt.SetRows(8)
+	txBox_rsa_result_decrypt.SetCols(128)
+	p.Add(txBox_rsa_result_decrypt)
+
+	return p
+}
+
 func buildPasswBoxDemo(event gwu.Event) gwu.Comp {
 	p := gwu.NewPanel()
 
@@ -976,7 +1074,7 @@ func buildShowcaseWin(sess gwu.Session) {
 	links.Add(l)
 	createDemo("Des", buildDesView)
 	createDemo("Mac", buildMacView)
-	createDemo("Rsa", buildTextBoxDemo)
+	createDemo("Rsa", buildRsaView)
 
 	links.AddVConsumer()
 	setNoWrap(links)
