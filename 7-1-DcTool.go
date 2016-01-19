@@ -235,6 +235,15 @@ func HexToBytes(str string) ([]byte, error) {
 	return bytes, nil
 }
 
+func XorSum(mybytes []byte) string {
+	var result byte
+	result = 0x00
+	for _, one := range mybytes {
+		result ^= one
+	}
+	return string(result)
+}
+
 func buildConvertView(event gwu.Event) gwu.Comp {
 	p := gwu.NewPanel()
 
@@ -266,7 +275,6 @@ func buildConvertView(event gwu.Event) gwu.Comp {
 		} else {
 			length.Style().SetBackground(gwu.CLR_RED)
 		}
-
 	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
 	row.Add(txBox_ascii)
 	row.Add(length)
@@ -297,12 +305,24 @@ func buildConvertView(event gwu.Event) gwu.Comp {
 	txBox_xor_data.SetCols(128)
 	txBox_xor_data.SetMaxLength(1024)
 	txBox_xor_data.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+
+	txBox_xor_result := gwu.NewTextBox("")
+	txBox_xor_result.SetCols(128)
+
 	length_4 := gwu.NewLabel("")
 	length_4.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
 	txBox_xor_data.AddEHandlerFunc(func(e gwu.Event) {
 		rem := 1024 - len(txBox_xor_data.Text())
 		length_4.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
 		e.MarkDirty(length_4)
+		if rem%2 == 0 {
+			strH, _ := HexToBytes(txBox_xor_data.Text())
+			txBox_xor_result.SetText(fmt.Sprintf("%X\n", XorSum(strH)))
+			e.MarkDirty(txBox_xor_result)
+			length_4.Style().SetBackground(gwu.CLR_GREEN)
+		} else {
+			length_4.Style().SetBackground(gwu.CLR_RED)
+		}
 	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
 	row.Add(txBox_xor_data)
 	row.Add(length_4)
@@ -310,8 +330,7 @@ func buildConvertView(event gwu.Event) gwu.Comp {
 
 	p.AddVSpace(10)
 	p.Add(gwu.NewLabel("XorSum Result:"))
-	txBox_xor_result := gwu.NewTextBox("")
-	txBox_xor_result.SetCols(128)
+
 	p.Add(txBox_xor_result)
 
 	return p
