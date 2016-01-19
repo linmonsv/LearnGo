@@ -317,7 +317,12 @@ func buildConvertView(event gwu.Event) gwu.Comp {
 		e.MarkDirty(length_4)
 		if rem%2 == 0 {
 			strH, _ := HexToBytes(txBox_xor_data.Text())
-			txBox_xor_result.SetText(fmt.Sprintf("%X\n", XorSum(strH)))
+			result := fmt.Sprintf("%X\n", XorSum(strH))
+			if len(result) >= 4 {
+				txBox_xor_result.SetText(fmt.Sprintf("%s\n", result[2:]))
+			} else {
+				txBox_xor_result.SetText(fmt.Sprintf("%s\n", result))
+			}
 			e.MarkDirty(txBox_xor_result)
 			length_4.Style().SetBackground(gwu.CLR_GREEN)
 		} else {
