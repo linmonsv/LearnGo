@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/icza/gowut/gwu"
 )
@@ -201,6 +202,39 @@ func buildTlvAnalysisView(event gwu.Event) gwu.Comp {
 	return p
 }
 
+func HexToBytes(str string) ([]byte, error) {
+	bytes := make([]byte, len(str)/2)
+	var highBits byte
+	var lowBits byte
+	for i := 0; i < len(str); i += 2 {
+		highBits = 0x00
+		lowBits = 0x00
+		switch {
+		case str[i] >= '0' && str[i] <= '9':
+			highBits = str[i] - '0'
+		case str[i] >= 'a' && str[i] <= 'z':
+			highBits = str[i] - 'a' + 10
+		case str[i] >= 'A' && str[i] <= 'Z':
+			highBits = str[i] - 'A' + 10
+		default:
+			return nil, errors.New(fmt.Sprintf("invalid hex character: %c", str[i]))
+		}
+		switch {
+		case str[i+1] >= '0' && str[i] <= '9':
+			lowBits = str[i+1] - '0'
+		case str[i+1] >= 'a' && str[i] <= 'z':
+			lowBits = str[i+1] - 'a' + 10
+		case str[i+1] >= 'A' && str[i] <= 'Z':
+			lowBits = str[i+1] - 'A' + 10
+		default:
+			return nil, errors.New(fmt.Sprintf("invalid hex character: %c", str[i]))
+		}
+		bytes[i/2] = highBits<<4 | lowBits
+
+	}
+	return bytes, nil
+}
+
 func buildConvertView(event gwu.Event) gwu.Comp {
 	p := gwu.NewPanel()
 
@@ -211,12 +245,28 @@ func buildConvertView(event gwu.Event) gwu.Comp {
 	txBox_ascii.SetCols(128)
 	txBox_ascii.SetMaxLength(1024)
 	txBox_ascii.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+
+	txBox_hex := gwu.NewTextBox("")
+	txBox_hex.SetRows(8)
+	txBox_hex.SetCols(128)
+	txBox_hex.SetMaxLength(1024)
+	txBox_hex.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+
 	length := gwu.NewLabel("")
 	length.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
 	txBox_ascii.AddEHandlerFunc(func(e gwu.Event) {
 		rem := 1024 - len(txBox_ascii.Text())
 		length.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
 		e.MarkDirty(length)
+		if rem%2 == 0 {
+			strH, _ := HexToBytes(txBox_ascii.Text())
+			txBox_hex.SetText(string(strH))
+			e.MarkDirty(txBox_hex)
+			length.Style().SetBackground(gwu.CLR_GREEN)
+		} else {
+			length.Style().SetBackground(gwu.CLR_RED)
+		}
+
 	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
 	row.Add(txBox_ascii)
 	row.Add(length)
@@ -225,17 +275,15 @@ func buildConvertView(event gwu.Event) gwu.Comp {
 	p.AddVSpace(10)
 	p.Add(gwu.NewLabel("Input Hex(max 1024 characters):"))
 	row = gwu.NewHorizontalPanel()
-	txBox_hex := gwu.NewTextBox("")
-	txBox_hex.SetRows(8)
-	txBox_hex.SetCols(128)
-	txBox_hex.SetMaxLength(1024)
-	txBox_hex.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+
 	length_3 := gwu.NewLabel("")
 	length_3.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
 	txBox_hex.AddEHandlerFunc(func(e gwu.Event) {
 		rem := 1024 - len(txBox_hex.Text())
 		length_3.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
 		e.MarkDirty(length_3)
+		txBox_ascii.SetText(fmt.Sprintf("%X", txBox_hex.Text()))
+		e.MarkDirty(txBox_ascii)
 	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
 	row.Add(txBox_hex)
 	row.Add(length_3)
