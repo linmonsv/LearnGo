@@ -4,13 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"net"
-	"time"
+	//"time"
 )
 
 func main() {
 	var tcpAddr *net.TCPAddr
 
-	tcpAddr, _ = net.ResolveTCPAddr("tcp", ":5761")
+	tcpAddr, _ = net.ResolveTCPAddr("tcp", ":5756")
 
 	tcpListener, _ := net.ListenTCP("tcp", tcpAddr)
 
@@ -43,8 +43,8 @@ func tcpPipe(conn *net.TCPConn) {
 		}
 
 		fmt.Println(string(message))
-		msg := time.Now().String() + "\n"
-		b := []byte(msg)
+		//msg := time.Now().String() + "\n"
+		b := []byte(string(message))
 		conn.Write(b)
 	}
 }
