@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"crypto/des"
 	"errors"
 	"fmt"
 	"github.com/icza/gowut/gwu"
@@ -220,11 +222,11 @@ func HexToBytes(str string) ([]byte, error) {
 			return nil, errors.New(fmt.Sprintf("invalid hex character: %c", str[i]))
 		}
 		switch {
-		case str[i+1] >= '0' && str[i] <= '9':
+		case str[i+1] >= '0' && str[i+1] <= '9':
 			lowBits = str[i+1] - '0'
-		case str[i+1] >= 'a' && str[i] <= 'z':
+		case str[i+1] >= 'a' && str[i+1] <= 'z':
 			lowBits = str[i+1] - 'a' + 10
-		case str[i+1] >= 'A' && str[i] <= 'Z':
+		case str[i+1] >= 'A' && str[i+1] <= 'Z':
 			lowBits = str[i+1] - 'A' + 10
 		default:
 			return nil, errors.New(fmt.Sprintf("invalid hex character: %c", str[i]))
@@ -341,6 +343,72 @@ func buildConvertView(event gwu.Event) gwu.Comp {
 	return p
 }
 
+func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
+	padding := blockSize - len(ciphertext)%blockSize
+	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(ciphertext, padtext...)
+}
+
+func PKCS5UnPadding(origData []byte) []byte {
+	length := len(origData)
+	unpadding := int(origData[length-1])
+	return origData[:(length - unpadding)]
+}
+
+func ZeroPadding(ciphertext []byte, blockSize int) []byte {
+	padding := blockSize - len(ciphertext)%blockSize
+	padtext := bytes.Repeat([]byte{0}, padding)
+	return append(ciphertext, padtext...)
+}
+
+func ZeroUnPadding(origData []byte) []byte {
+	return bytes.TrimFunc(origData,
+		func(r rune) bool {
+			return r == rune(0)
+		})
+}
+
+func DesEncrypt(src, key []byte) ([]byte, error) {
+	block, err := des.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	bs := block.BlockSize()
+	src = ZeroPadding(src, bs)
+	// src = PKCS5Padding(src, bs)
+	if len(src)%bs != 0 {
+		return nil, errors.New("Need a multiple of the blocksize")
+	}
+	out := make([]byte, len(src))
+	dst := out
+	for len(src) > 0 {
+		block.Encrypt(dst, src[:bs])
+		src = src[bs:]
+		dst = dst[bs:]
+	}
+	return out[:8], nil
+}
+
+func DesDecrypt(src, key []byte) ([]byte, error) {
+	block, err := des.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]byte, len(src))
+	dst := out
+	bs := block.BlockSize()
+	if len(src)%bs != 0 {
+		return nil, errors.New("crypto/cipher: input not full blocks")
+	}
+	for len(src) > 0 {
+		block.Decrypt(dst, src[:bs])
+		src = src[bs:]
+		dst = dst[bs:]
+	}
+	out = ZeroUnPadding(out)
+	// out = PKCS5UnPadding(out)
+	return out, nil
+}
 func buildDesView(event gwu.Event) gwu.Comp {
 	p := gwu.NewPanel()
 
@@ -350,6 +418,18 @@ func buildDesView(event gwu.Event) gwu.Comp {
 	txBox_des_key.SetCols(32)
 	txBox_des_key.SetMaxLength(32)
 	txBox_des_key.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+
+	txBox_des_data := gwu.NewTextBox("")
+	txBox_des_data.SetCols(32)
+	txBox_des_data.SetMaxLength(32)
+	txBox_des_data.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+
+	txBox_des_result_encrypt := gwu.NewTextBox("")
+	txBox_des_result_encrypt.SetCols(32)
+
+	txBox_des_result_decrypt := gwu.NewTextBox("")
+	txBox_des_result_decrypt.SetCols(32)
+
 	length := gwu.NewLabel("")
 	length.Style().SetColor(gwu.CLR_WHITE)
 	length.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
@@ -357,11 +437,22 @@ func buildDesView(event gwu.Event) gwu.Comp {
 		rem := 32 - len(txBox_des_key.Text())
 		if rem == 0 || rem == 16 {
 			length.Style().SetBackground(gwu.CLR_GREEN)
+			if len(txBox_des_data.Text())%16 == 0 {
+				key, _ := HexToBytes(txBox_des_key.Text())
+				data, _ := HexToBytes(txBox_des_data.Text())
+				result, _ := DesEncrypt(data, key)
+				txBox_des_result_encrypt.SetText(fmt.Sprintf("%X", result))
+				e.MarkDirty(txBox_des_result_encrypt)
+				result, _ = DesDecrypt(data, key)
+				txBox_des_result_decrypt.SetText(fmt.Sprintf("%X", result))
+				e.MarkDirty(txBox_des_result_decrypt)
+			}
 		} else {
 			length.Style().SetBackground(gwu.CLR_RED)
 		}
 		length.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
 		e.MarkDirty(length)
+
 	}, gwu.ETYPE_CHANGE, gwu.ETYPE_KEY_UP)
 	row.Add(txBox_des_key)
 	row.Add(length)
@@ -370,10 +461,7 @@ func buildDesView(event gwu.Event) gwu.Comp {
 	p.AddVSpace(10)
 	p.Add(gwu.NewLabel("Input Data(max 32 characters):"))
 	row = gwu.NewHorizontalPanel()
-	txBox_des_data := gwu.NewTextBox("")
-	txBox_des_data.SetCols(32)
-	txBox_des_data.SetMaxLength(32)
-	txBox_des_data.AddSyncOnETypes(gwu.ETYPE_KEY_UP)
+
 	length_2 := gwu.NewLabel("")
 	length_2.Style().SetColor(gwu.CLR_WHITE)
 	length_2.Style().SetFontSize("80%").SetFontStyle(gwu.FONT_STYLE_ITALIC)
@@ -381,6 +469,16 @@ func buildDesView(event gwu.Event) gwu.Comp {
 		rem := 32 - len(txBox_des_data.Text())
 		if rem%16 == 0 {
 			length_2.Style().SetBackground(gwu.CLR_GREEN)
+			if len(txBox_des_key.Text()) == 16 || len(txBox_des_key.Text()) == 32 {
+				key, _ := HexToBytes(txBox_des_key.Text())
+				data, _ := HexToBytes(txBox_des_data.Text())
+				result, _ := DesEncrypt(data, key)
+				txBox_des_result_encrypt.SetText(fmt.Sprintf("%X", result))
+				e.MarkDirty(txBox_des_result_encrypt)
+				result, _ = DesDecrypt(data, key)
+				txBox_des_result_decrypt.SetText(fmt.Sprintf("%X", result))
+				e.MarkDirty(txBox_des_result_decrypt)
+			}
 		} else {
 			length_2.Style().SetBackground(gwu.CLR_RED)
 		}
@@ -393,14 +491,12 @@ func buildDesView(event gwu.Event) gwu.Comp {
 
 	p.AddVSpace(10)
 	p.Add(gwu.NewLabel("Encrypt Result:"))
-	txBox_des_result_encrypt := gwu.NewTextBox("")
-	txBox_des_result_encrypt.SetCols(32)
+
 	p.Add(txBox_des_result_encrypt)
 
 	p.AddVSpace(10)
 	p.Add(gwu.NewLabel("Decrypt Result:"))
-	txBox_des_result_decrypt := gwu.NewTextBox("")
-	txBox_des_result_decrypt.SetCols(32)
+
 	p.Add(txBox_des_result_decrypt)
 
 	return p
